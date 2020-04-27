@@ -1,14 +1,17 @@
+from collections import OrderedDict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, List, Sequence
 
 from lft.consensus.messages.data import Data
 from lft.consensus.messages.vote import Vote
 
+from legacy.blockchain.transactions.v3 import TransactionSerializer
 from loopchain.blockchain.blocks import (BlockHeader as BaseBlockHeader,
                                          BlockBody as BaseBlockBody)
 from loopchain.blockchain.types import Hash32, BloomFilter, ExternalAddress
 from loopchain.blockchain.types import Signature
 from loopchain.crypto.hashing import build_hash_generator
+from loopchain.blockchain.transactions import TransactionVersioner
 
 if TYPE_CHECKING:
     from loopchain.blockchain.votes.v1_0.vote import BlockVote
@@ -117,9 +120,18 @@ class Block(Data):
             prev_receipts_hash=Hash32.fromhex(data["prevReceiptsHash"]),
             prev_logs_bloom=BloomFilter.fromhex(data["prevLogsBloom"])
         )
+
+        tx_versioner = TransactionVersioner()
+        transactions = OrderedDict()
+        for tx_data in data['transactions']:
+            tx_version, tx_type = tx_versioner.get_version(tx_data)
+            ts = TransactionSerializer.new(tx_version, tx_type, tx_versioner)
+            tx = ts.from_(tx_data)
+            transactions[tx.hash] = tx
+
         body = BlockBody(
             prev_votes=data["prevVotes"],  # TODO: Need to be ordered?
-            transactions=data["transactions"]
+            transactions=transactions
         )
         return cls(header=header, body=body)
 
