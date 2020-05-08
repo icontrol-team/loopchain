@@ -1,17 +1,17 @@
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Sequence
+from typing import TYPE_CHECKING, Sequence
 
 from lft.consensus.messages.data import Data
 from lft.consensus.messages.vote import Vote
 
-from legacy.blockchain.transactions.v3 import TransactionSerializer
 from loopchain.blockchain.blocks import (BlockHeader as BaseBlockHeader,
                                          BlockBody as BaseBlockBody)
+from loopchain.blockchain.transactions import TransactionVersioner
+from loopchain.blockchain.transactions.v3 import TransactionSerializer
 from loopchain.blockchain.types import Hash32, BloomFilter, ExternalAddress
 from loopchain.blockchain.types import Signature
 from loopchain.crypto.hashing import build_hash_generator
-from loopchain.blockchain.transactions import TransactionVersioner
 
 if TYPE_CHECKING:
     from loopchain.blockchain.votes.v1_0.vote import BlockVote
