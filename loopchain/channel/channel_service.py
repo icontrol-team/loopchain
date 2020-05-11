@@ -16,14 +16,14 @@ from loopchain import configure as conf
 from loopchain import utils
 from loopchain.baseservice import (BroadcastScheduler, BroadcastSchedulerFactory, ObjectManager, CommonSubprocess,
                                    RestClient, NodeSubscriber, UnregisteredException, TimerService)
-from loopchain.blockchain.blocks import Block
+from loopchain.blockchain.blocks import Block, v1_0
 from loopchain.blockchain.blocks.v1_0 import BlockFactory
 from loopchain.blockchain.epoch3 import LoopchainEpoch
 from loopchain.blockchain.exception import AnnounceNewBlockError, WritePrecommitStateError, ConsensusChanged
 from loopchain.blockchain.invoke_result import InvokePool
 from loopchain.blockchain.transactions import TransactionVersioner
 from loopchain.blockchain.types import ExternalAddress, TransactionStatusInQueue
-from loopchain.blockchain.types import Hash32
+from loopchain.blockchain.types import Hash32, Signature
 from loopchain.blockchain.votes.v1_0 import BlockVoteFactory
 from loopchain.channel.channel_inner_service import ChannelInnerService
 from loopchain.channel.channel_property import ChannelProperty
@@ -36,9 +36,6 @@ from loopchain.store.key_value_store import KeyValueStoreError
 from loopchain.utils import loggers, command_arguments
 from loopchain.utils.icon_service import convert_params, ParamType
 from loopchain.utils.message_queue import StubCollection
-
-if TYPE_CHECKING:
-    from loopchain.blockchain.blocks import v1_0
 
 
 class ChannelService:
@@ -170,7 +167,7 @@ class ChannelService:
 
         # last_block: Block = self.block_manager.blockchain.last_block
 
-        block: "v1_0.Block" = await block_factory.create_data(
+        temp_block: "v1_0.Block" = await block_factory.create_data(
             data_number=0,
             prev_id=Hash32.new(),
             epoch_num=0,
@@ -178,16 +175,34 @@ class ChannelService:
             prev_votes=()
         )
 
-        vote = await vote_factory.create_vote(
-            block.header.hash, block.header.prev_hash, block.epoch_num, block.round_num)
+        header = v1_0.BlockHeader(
+            temp_block.header.hash,
+            temp_block.header.prev_hash,
+            temp_block.header.height,
+            temp_block.header.timestamp,
+            ExternalAddress.new(),
+            Signature.new(),
+            temp_block.epoch_num,
+            temp_block.round_num,
+            Hash32.new(),
+            temp_block.header.next_validators_hash,
+            temp_block.header.prev_votes_hash,
+            temp_block.header.transactions_hash,
+            temp_block.header.prev_state_hash,
+            temp_block.header.prev_receipts_hash,
+            temp_block.header.prev_logs_bloom
+        )
 
-        # voters = self.block_manager.blockchain.find_preps_by_roothash(block.header.validators_hash)
+        block = v1_0.Block(
+            header,
+            temp_block.body
+        )
 
         event = InitializeEvent(
-            commit_id=b'',
-            epoch_pool=[LoopchainEpoch(num=0, voters=(ChannelProperty().peer_address,))],
+            commit_id=header.prev_hash,
+            epoch_pool=[LoopchainEpoch(num=0, voters=()), LoopchainEpoch(num=1, voters=(ChannelProperty().peer_address,))],
             data_pool=[block],
-            vote_pool=[vote]
+            vote_pool=[]
         )
         event.deterministic = False
 
