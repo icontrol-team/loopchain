@@ -48,6 +48,11 @@ class Block(Data):
         self._header: BlockHeader = header
         self._body: BlockBody = body
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}" \
+               f"(header={self._header}, " \
+               f"body={self._body})"
+
     @property
     def header(self) -> BlockHeader:
         return self._header
