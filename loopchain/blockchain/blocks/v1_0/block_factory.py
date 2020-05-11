@@ -7,11 +7,12 @@ from lft.consensus.messages.data import DataFactory
 from loopchain import configure_default as conf
 from loopchain import utils
 from loopchain.blockchain import Hash32, TransactionStatusInQueue, ExternalAddress
-from loopchain.blockchain.blocks.v1_0.block import Block, BlockHeader
+from loopchain.blockchain.blocks.v1_0.block import Block, BlockHeader, BlockBody
 from loopchain.blockchain.blocks.v1_0.block_builder import BlockBuilder
 from loopchain.blockchain.blocks.v1_0.block_verifier import BlockVerifier
 from loopchain.blockchain.invoke_result import InvokeData, InvokePool
 from loopchain.blockchain.transactions import Transaction, TransactionVerifier, TransactionSerializer
+from loopchain.blockchain.types import BloomFilter
 from loopchain.crypto.signature import Signer
 from loopchain.store.key_value_store import KeyValueStore
 
@@ -127,7 +128,29 @@ class BlockFactory(DataFactory):
             block_builder.transactions[tx.hash] = tx
 
     def create_none_data(self, epoch_num: int, round_num: int, proposer_id: bytes) -> Block:
-        pass
+        header = BlockHeader(
+            hash=Block.NoneData,
+            prev_hash=Block.NoneData,
+            height=-1,
+            timestamp=utils.get_time_stamp(),
+            peer_id=b"",
+            signature="",
+            epoch=epoch_num,
+            round=round_num,
+            validators_hash=Hash32.empty(),
+            next_validators_hash=Hash32.empty(),
+            prev_votes_hash=Hash32.empty(),
+            transactions_hash=Hash32.empty(),
+            prev_state_hash=Hash32.empty(),
+            prev_receipts_hash=Hash32.empty(),
+            prev_logs_bloom=BloomFilter.empty()
+        )
+        body = BlockBody(
+            transactions=[],
+            prev_votes=[],
+        )
+
+        return Block(header, body)
 
     def create_lazy_data(self, epoch_num: int, round_num: int, proposer_id: bytes) -> Block:
         pass
