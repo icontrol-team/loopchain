@@ -54,9 +54,8 @@ class ConsensusRunner(EventRegister):
 
     async def _on_event_broadcast_data(self, event: BroadcastDataEvent):
         # call broadcast block
-        utils.logger.notice(f"_on_event_broadcast_data: {event}")
-        utils.logger.notice(f"> data: {event.data}")
-        await self._do_dummy_vote(block=event.data)
+        utils.logger.notice(f"_on_event_broadcast_data")
+        # await self._do_dummy_vote(block=event.data)
 
     async def _on_event_broadcast_vote(self, vote: 'Vote'):
         # call broadcast vote
@@ -67,9 +66,9 @@ class ConsensusRunner(EventRegister):
         utils.logger.notice(f"_on_event_receive_data: {event.data.header.height}")
         await self.consensus.receive_data(event.data)
 
-    # async def _on_event_receive_vote(self, vote: 'Vote'):
-    #     utils.logger.notice(f"_on_event_receive_vote")
-    #     await self.consensus.receive_vote(vote)
+    async def _on_event_receive_vote(self, event: ReceiveVoteEvent):
+        utils.logger.notice(f"_on_event_receive_vote")
+        await self.consensus.receive_vote(event.vote)
 
     async def _on_init_event(self, init_event: InitializeEvent):
         utils.logger.notice(f"_on_init_event")
@@ -140,7 +139,7 @@ class ConsensusRunner(EventRegister):
         BroadcastDataEvent: _on_event_broadcast_data,
         BroadcastVoteEvent: _on_event_broadcast_vote,
         ReceiveDataEvent: _on_event_receive_data,
-        # ReceiveVoteEvent: _on_event_receive_vote,
+        ReceiveVoteEvent: _on_event_receive_vote,
         InitializeEvent: _on_init_event,
         RoundEndEvent: _on_round_end_event
     }
