@@ -116,3 +116,33 @@ class BlockVoteFactory(VoteFactory):
     async def create_vote_verifier(self) -> 'VoteVerifier':
         """This is not used in library!"""
         return VoteVerifier()
+
+    async def create_dummy_vote(self, data_id, commit_id, epoch_num, round_num) -> BlockVote:
+        """Temporary method, not affect invoke process."""
+        data_id: Hash32
+
+        timestamp = util.get_time_stamp()
+        signature = self._get_signature(
+            voter_id=self._voter_id,
+            commit_id=commit_id,
+            data_id=data_id,
+            epoch_num=epoch_num,
+            state_hash=Hash32.empty(),
+            receipt_hash=Hash32.empty(),
+            round_num=round_num,
+            timestamp=timestamp
+        )
+
+        vote = BlockVote(
+            voter_id=self._voter_id,
+            receipt_hash=Hash32.empty(),
+            state_hash=Hash32.empty(),
+            data_id=Hash32(data_id),
+            commit_id=Hash32(commit_id),
+            timestamp=timestamp,
+            epoch_num=epoch_num,
+            round_num=round_num,
+            signature=signature
+        )
+
+        return vote
