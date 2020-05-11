@@ -28,6 +28,12 @@ class LoopchainEpoch(Epoch):
         # Cached
         self._voters_num = len(self._voters)
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}" \
+               f"(num={self._num}, " \
+               f"rotate_bound={self._rotate_bound}, " \
+               f"voters={[voter.hex_hx() for voter in self._voters]})"
+
     @property
     def num(self) -> int:
         """Unique index of this epoch."""

@@ -39,6 +39,19 @@ class BlockVote(Vote):
         # Created
         self._hash: Hash32 = None
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}" \
+               f"(data_id={self._data_id}, " \
+               f"commit_id={self._commit_id}, " \
+               f"voter_id={self._voter_id.hex_hx()}, " \
+               f"epoch_num={self._epoch_num}, " \
+               f"round_num={self._round_num}, " \
+               f"state_hash={self._state_hash}, " \
+               f"receipt_hash={self._receipt_hash}, " \
+               f"timestamp={self._timestamp}, " \
+               f"signature={self._signature}, " \
+               f"hash={self._hash})"
+
     @property
     def version(self):
         return "1.0"
