@@ -52,6 +52,7 @@ class BlockFactory(DataFactory):
 
         # Epoch.makeup_block
         block_builder = BlockBuilder.new(BlockHeader.version, self._tx_versioner)
+        block_builder.peer_id = b''
         block_builder.fixed_timestamp = int(time.time() * 1_000_000)
         block_builder.prev_votes = prev_votes
 

@@ -172,11 +172,14 @@ class ChannelService:
 
         block: "v1_0.Block" = await block_factory.create_data(
             data_number=0,
-            prev_id=b'',
+            prev_id=Hash32.new(),
             epoch_num=0,
             round_num=0,
             prev_votes=()
         )
+
+        vote = await vote_factory.create_vote(
+            block.header.hash, block.header.prev_hash, block.epoch_num, block.round_num)
 
         # voters = self.block_manager.blockchain.find_preps_by_roothash(block.header.validators_hash)
 
@@ -184,7 +187,7 @@ class ChannelService:
             commit_id=b'',
             epoch_pool=[LoopchainEpoch(num=0, voters=(ChannelProperty().peer_address,))],
             data_pool=[block],
-            vote_pool=block.body.prev_votes
+            vote_pool=[vote]
         )
         event.deterministic = False
 
