@@ -9,6 +9,7 @@ from lft.event import EventSystem, EventRegister
 
 from loopchain import utils
 from loopchain.blockchain.epoch3 import LoopchainEpoch
+from loopchain.channel.channel_property import ChannelProperty
 
 if TYPE_CHECKING:
     from loopchain.blockchain.types import ExternalAddress
@@ -34,9 +35,10 @@ class ConsensusRunner(EventRegister):
         self.event_system.start(blocking=False)
         self.event_system.simulator.raise_event(event)
 
-    async def _on_event_broadcast_data(self, block: 'Data'):
+    async def _on_event_broadcast_data(self, event: BroadcastDataEvent):
         # call broadcast block
-        utils.logger.notice(f"_on_event_broadcast_data")
+        utils.logger.notice(f"_on_event_broadcast_data: {event}")
+        utils.logger.notice(f"> data: {event.data}")
         pass
 
     async def _on_event_broadcast_vote(self, vote: 'Vote'):
@@ -44,9 +46,9 @@ class ConsensusRunner(EventRegister):
         utils.logger.notice(f"_on_event_broadcast_vote")
         pass
 
-    async def _on_event_receive_data(self, block: 'Data'):
+    async def _on_event_receive_data(self, event: ReceiveDataEvent):
         utils.logger.notice(f"_on_event_receive_data")
-        await self.consensus.receive_data(block)
+        await self.consensus.receive_data(event.data)
 
     async def _on_event_receive_vote(self, vote: 'Vote'):
         utils.logger.notice(f"_on_event_receive_vote")
