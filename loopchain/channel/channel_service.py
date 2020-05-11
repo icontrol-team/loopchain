@@ -11,6 +11,7 @@ from earlgrey import MessageQueueService
 from lft.consensus.epoch import EpochPool
 from lft.consensus.events import InitializeEvent
 from lft.event import EventSystem
+from lft.event.mediators import DelayedEventMediator
 
 from loopchain import configure as conf
 from loopchain import utils
@@ -139,6 +140,7 @@ class ChannelService:
 
     async def start_lft(self):
         self.__event_system = EventSystem()
+        self.__event_system.set_mediator(DelayedEventMediator)
 
         epoch_pool = EpochPool()
         tx_queue = self.block_manager.get_tx_queue()
