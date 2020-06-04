@@ -1,5 +1,4 @@
-"""Block chain class with authorized blocks only"""
-
+"""Manage block and consensus essential data in blockchain store."""
 import json
 import pickle
 import threading
